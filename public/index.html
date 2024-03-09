@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Encrypt files online - encryptfil.es</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./logo.png" />
+    <link rel="apple-touch-icon" sizes="128x128" href="./logo.png" />
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials" />
+    <link rel="shortcut icon" type="image/png" href="./logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./logo.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" type="text/css" href="./styles/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/openpgp@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pako@1.0.11/dist/pako.min.js"></script>
+    <script
+      src="https://zapwebring.com/scripts/components/zap-webring.js"
+      type="module"
+    ></script>
+    <script src="/scripts/chat.js" type="module"></script>
+    <style>
+      code {
+        font-family: Space-Mono;
+        display: block;
+        padding: 1.2rem;
+        border: 1px solid #ccc;
+      }
+
+      h1,
+      h2 {
+        margin-bottom: 1rem;
+      }
+
+      ul {
+        list-style-type: none;
+      }
+
+      ul ul {
+        margin-left: 1.4rem;
+      }
+
+      ul li {
+        margin-bottom: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: center;
+        "
+      >
+        <img
+          src="/logo.png"
+          alt=""
+          style="width: 10rem; border-radius: 30rem; margin-right: 1.2rem"
+        />
+        <span>Encrypt files online in the browser</span>
+      </h1>
+      <p>
+        Nothing ever leaves your machine. This script will gzip and encrypt your
+        file with openpgp in the browser and push you back a .gz.gpg encrypted
+        file.
+      </p>
+      <p>
+        No files are sent to our servers...or anyone else's. You'll want to
+        remember the password you used to encrypt it in order to decrypt it with
+        gpg on your computer.
+      </p>
+
+      <form>
+        <div class="field">
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter encryption password..."
+          />
+        </div>
+        <div
+          class="field"
+          style="
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+          "
+        >
+          <textarea
+            id="content"
+            placeholder="Add some text to encrypt..."
+            style="height: 10rem"
+          ></textarea>
+          <button id="encrypt" type="button">Encrypt</button>
+        </div>
+        <h4 style="margin-bottom: 1.2rem">-- or --</h4>
+        <div class="field">
+          <input type="file" id="fileInput" />
+        </div>
+      </form>
+      <p>
+        Files can be decrypted with <code>gpg filename.gz.gpg</code> and
+        unzipped with
+        <code>unzip filename.gz</code>
+      </p>
+
+      <h2>Installing gpg and gzip:</h2>
+      <ul>
+        <li>
+          <strong>macOS:</strong>
+          <ul>
+            <li>
+              Install GnuPG using Homebrew:
+              <code>brew install gnupg</code>
+              <br />
+              <a href="https://brew.sh/">Homebrew Download Page</a>
+            </li>
+            <li>
+              Install gzip using Homebrew:
+              <code>brew install gzip</code>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Linux:</strong>
+          <ul>
+            <li>
+              Debian/Ubuntu (using APT):
+              <ul>
+                <li>
+                  <code>sudo apt update && sudo apt install gnupg</code> for
+                  GnuPG.
+                </li>
+                <li><code>sudo apt install gzip</code> for gzip.</li>
+              </ul>
+            </li>
+            <li>
+              Fedora (using DNF):
+              <ul>
+                <li><code>sudo dnf install gnupg</code> for GnuPG.</li>
+                <li><code>sudo dnf install gzip</code> for gzip.</li>
+              </ul>
+            </li>
+            <li>
+              CentOS/RHEL (using YUM for CentOS 7 and below):
+              <ul>
+                <li><code>sudo yum install gnupg2</code> for GnuPG.</li>
+                <li><code>sudo yum install gzip</code> for gzip.</li>
+              </ul>
+            </li>
+            <li>
+              CentOS/RHEL 8+ (using DNF):
+              <ul>
+                <li><code>sudo dnf install gnupg2</code> for GnuPG.</li>
+                <li><code>sudo dnf install gzip</code> for gzip.</li>
+              </ul>
+            </li>
+            <li>
+              openSUSE (using Zypper):
+              <ul>
+                <li><code>sudo zypper install gpg2</code> for GnuPG.</li>
+                <li><code>sudo zypper install gzip</code> for gzip.</li>
+              </ul>
+            </li>
+            <li>
+              Arch Linux (using Pacman):
+              <ul>
+                <li><code>sudo pacman -S gnupg</code> for GnuPG.</li>
+                <li><code>sudo pacman -S gzip</code> for gzip.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Windows:</strong>
+          <ul>
+            <li>
+              Install GnuPG: Download and run the installer from the official
+              Gpg4win website.
+              <br />
+              <a href="https://www.gpg4win.org/download.html"
+                >Gpg4win Download Page</a
+              >
+            </li>
+            <li>
+              Install gzip: For Windows, gzip can typically be installed as part
+              of Git for Windows, Cygwin, or WSL (Windows Subsystem for Linux)
+              for a Unix-like environment.
+              <br />
+              <a href="https://gitforwindows.org/"
+                >Git for Windows Download Page</a
+              >
+              <br />
+              <a href="https://www.cygwin.com/">Cygwin Download Page</a>
+              <br />
+              <a href="https://docs.microsoft.com/en-us/windows/wsl/install"
+                >WSL Installation Guide</a
+              >
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <zap-webring></zap-webring>
+    </main>
+    <script>
+      function pushFile(encrypted, filename) {
+        const blob = new Blob([encrypted], {
+          type: "application/octet-stream",
+        });
+        // Step 3: Create an Object URL for the Blob
+        const url = URL.createObjectURL(blob);
+        // Step 4: Dynamically create and click an <a> element to start the download
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename; // Suggest a filename for the download
+        document.body.appendChild(a); // Append the element to the DOM to make it clickable (required for Firefox)
+        a.click(); // Simulate a click on the element
+        // Cleanup: revoke the Object URL to free up resources
+        URL.revokeObjectURL(url);
+        a.remove(); // Remove the element from the DOM
+      }
+
+      async function decryptData(encrypted, password) {
+        const encryptedMessage = await openpgp.readMessage({
+          binaryMessage: encrypted, // parse encrypted bytes
+        });
+        const { data: decrypted } = await openpgp.decrypt({
+          message: encryptedMessage,
+          passwords: [password], // decrypt with password
+          format: "binary", // output as Uint8Array
+        });
+
+        return decrypted;
+      }
+
+      async function encryptData(compressed, password) {
+        // Use OpenPGP.js to create a message from the file's data
+        const message = await openpgp.createMessage({ binary: compressed });
+        console.log("Message created:", message);
+
+        const encrypted = await openpgp.encrypt({
+          message, // input as Message object
+          passwords: [password], // multiple passwords possible
+          format: "binary", // don't ASCII armor (for Uint8Array output)
+        });
+        console.log(encrypted); // Uint8Array
+
+        return encrypted;
+      }
+
+      function compressData(text) {
+        const encoder = new TextEncoder();
+        const uint8Array = encoder.encode(text);
+        const { buffer } = uint8Array;
+
+        const byteArray = new Uint8Array(buffer);
+        const compressed = pako.gzip(byteArray);
+
+        return compressed;
+      }
+
+      async function compressFile(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const byteArray = new Uint8Array(arrayBuffer);
+        const compressed = pako.gzip(byteArray);
+
+        return compressed;
+      }
+
+      document
+        .getElementById("encrypt")
+        .addEventListener("click", async (event) => {
+          event.preventDefault();
+          const password = document.getElementById("password").value;
+
+          if (!password) return;
+
+          const text = document.getElementById("content").value;
+          console.log(text);
+          const filename =
+            text
+              .substr(0, 32)
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/gs, "-") + ".gz.gpg";
+          console.log(filename);
+          const compressed = compressData(text);
+          const encrypted = await encryptData(compressed, password);
+          const decrypted = await decryptData(encrypted, password);
+
+          console.log(decrypted);
+          pushFile(encrypted, filename);
+        });
+
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", async (event) => {
+          const file = event.target.files[0];
+          if (!file) {
+            console.error("No file selected!");
+            return;
+          }
+
+          try {
+            const password = document.getElementById("password").value;
+
+            if (!password) return;
+
+            const filename = file.name + ".gz.gpg";
+            const compressed = await compressFile(file);
+            const encrypted = await encryptData(compressed, password);
+            const decrypted = await decryptData(encrypted, password);
+
+            console.log(decrypted);
+            pushFile(encrypted, filename);
+            // You can now use this message for encryption, signing, etc.
+          } catch (error) {
+            console.error("Error processing the file:", error);
+          }
+        });
+    </script>
+  </body>
+</html>
